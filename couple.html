@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Couple Event</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<style>
+    body {
+        background-color: white;
+        font-family: 'Mitr', sans-serif;
+    }
+    /* ใช้ CSS Grid ทำให้รูปภาพจัดเรียงเป็น Mosaic */
+    #image-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 8px;
+        justify-content: center;
+        padding: 30px 5px;
+    }
+    #image-container img {
+        width: 100%;
+        height: auto;
+        border-radius: 10px;
+        opacity: 0;
+        transform: scale(0.9);
+        transition: opacity 1s ease-out, transform 0.5s ease-out;
+    }
+    #image-container img.show {
+        opacity: 1;
+        transform: scale(1);
+    }
+    /* ปุ่ม Start the Fire!!! */
+    #seeFire {
+        display: none;
+        text-decoration: none;
+        color: black;
+        font-size: 20px;
+        background-color: white;
+        border: 2px solid #ec7b95;
+        border-radius: 10px;
+        padding: 10px 20px;
+        text-align: center;
+        margin: 20px auto;
+    }
+    #seeFire:hover {
+        background-color: #ec7b95;
+        color: white;
+        cursor: pointer;
+    }
+    /* Card Congratulations */
+    .congrats-card {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 400px;
+        padding: 20px;
+        background: white;
+        box-shadow: 0px 0px 15px #ec7b95;
+        text-align: center;
+        border-radius: 10px;
+        display: none;
+        animation: fadeIn 0.5s ease-in-out;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translate(-50%, -55%); }
+        to { opacity: 1; transform: translate(-50%, -50%); }
+    }
+    /* ปุ่มปิดการ์ด */
+    .close-btn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        color: black;
+        border: none;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        font-size: 18px;
+        cursor: pointer;
+        text-align: center;
+        line-height: 30px;
+    }
+</style>
+<body>
+    <div class="container">
+        <!-- แสดงรูปภาพ -->
+        <div id="image-container" class="row"></div>
+        <!-- ปุ่ม Start the Fire -->
+        <a href="#" id="seeFire">Open up!!!</a>
+    </div>
+</body>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", async () => {
+    const imageContainer = document.getElementById("image-container");
+    const seeFireButton = document.getElementById("seeFire");
+
+    // โหลดข้อมูลจาก image.json
+    const response = await fetch("image.json");
+    const images = await response.json();
+
+    // สุ่มลำดับภาพ
+    const shuffledImages = images.sort(() => Math.random() - 0.5);
+
+    let loadedImages = 0;
+
+    // ฟังก์ชันเพิ่มรูปภาพลง DOM
+    function addImage(image) {
+        return new Promise((resolve) => {
+            const imgElement = document.createElement("img");
+            imgElement.src = image.url;
+            imgElement.className = "img-fluid";
+            imageContainer.appendChild(imgElement);
+
+            setTimeout(() => {
+                imgElement.classList.add("show");
+                loadedImages++;
+                resolve();
+            }, 100);
+        });
+    }
+
+    // แสดงภาพทั้งหมดแบบค่อยๆ ปรากฏ
+    async function displayAllImages(images) {
+        for (const image of images) {
+            await new Promise((resolve) => setTimeout(resolve, 500));
+            await addImage(image);
+        }
+        seeFireButton.style.display = "block"; // แสดงปุ่มหลังโหลดครบ
+    }
+
+    setTimeout(() => {
+        displayAllImages(shuffledImages);
+    }, 500);
+
+    // เมื่อกดปุ่ม Start the Fire
+    seeFireButton.addEventListener("click", () => {
+        showCongratsCard();
+    });
+
+    // ฟังก์ชันแสดงการ์ด Congratulations 🎉
+    function showCongratsCard() {
+        const congratsCard = document.createElement("div");
+        congratsCard.classList.add("congrats-card");
+        congratsCard.innerHTML = `
+            <button class="close-btn">&times;</button><br/>
+            <h3>🎉 Happy Valentine's Day 🎉</h3>
+            <p>MAY x Peem</p>
+            <br/>
+            <p>ขอให้ปีนี้มีแต่เรื่องดี ๆ เข้ามากับเราทั้งสองคน</p>
+            <p>เป็นอีกปีที่เราจะเข้าใจกันขึ้นเรื่อย ๆ</p>
+            <p>เค้ารักภีมที่สุดในโลกเล้ยยย ><</p>
+            
+        `;
+        document.body.appendChild(congratsCard);
+        congratsCard.style.display = "block";
+
+        // ปิดการ์ดเมื่อกดปุ่ม X
+        congratsCard.querySelector(".close-btn").addEventListener("click", () => {
+            congratsCard.style.display = "none";
+        });
+    }
+});
+</script>
+</html>
